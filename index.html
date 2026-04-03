@@ -3,10 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARG NORMAL VER</title>
+    <title>Encrypted Terminal</title>
+    <style>
+        /* === STYLING & GLITCH EFFECTS === */
+        body {
+            background-color: #050505;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            background: rgba(0, 20, 0, 0.8);
+            position: relative;
+        }
+
+        /* Glitch Animation */
+        .glitch-text {
+            font-size: 2em;
+            font-weight: bold;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #050505;
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 red;
+            animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -1px 0 blue;
+            animation: glitch-anim 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip-path: inset(10% 0 30% 0); }
+            20% { clip-path: inset(80% 0 5% 0); }
+            40% { clip-path: inset(40% 0 50% 0); }
+            60% { clip-path: inset(10% 0 60% 0); }
+            80% { clip-path: inset(70% 0 20% 0); }
+            100% { clip-path: inset(30% 0 10% 0); }
+        }
+
+        /* Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        p { line-height: 1.6; }
+
+        input {
+            background: #000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            font-family: inherit;
+            width: 80%;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #fff;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .hidden { display: none; }
+        .error { color: #ff0000; font-weight: bold; margin-top: 10px; }
+    </style>
 </head>
 <body>
-    <h1>Welcome to ARG</h1>
-    <p>This is the content of ARG NORMAL VER.html</p>
+    <div class="scanlines"></div>
+
+    <div class="container" id="main-container">
+        
+        <div id="puzzle-stage">
+            <div class="glitch-text" data-text="TERMINAL LOCKED">TERMINAL LOCKED</div>
+            
+            <p id="cryptic-story">
+                The truth is hidden where the blue door meets the white wall. a set of words
+                others may ignore .
+            </p>
+            
+            <input type="text" id="password-input" placeholder="ENTER DECRYPTION KEY">
+            <br>
+            <button onclick="attemptDecryption()">DECRYPT</button>
+            <p id="error-message" class="error hidden">ACCESS DENIED: INVALID KEY</p>
+        </div>
+
+        <div id="confession-stage" class="hidden">
+            <div class="glitch-text" data-text="SYSTEM UNLOCKED">SYSTEM UNLOCKED</div>
+            <p>
+                You figured it out.<br><br>
+                I've liked you for a really long time now. Every conversation we have is the highlight of my day. I made this whole puzzle just to tell you that I think you're incredible. <br><br>
+                Let me know what you think when you read this. :)
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        /* === JAVASCRIPT LOGIC === */
+        function attemptDecryption() {
+            
+            // [EDIT HERE] 3. SET YOUR CUSTOM PASSWORD 
+            // Keep it inside the quotation marks. Make sure it matches what you hint to her!
+            const correctPassword = "I AM GOD"; 
+            
+            const userInput = document.getElementById("password-input").value;
+            const errorMsg = document.getElementById("error-message");
+            
+            // Checking if the password matches (ignoring capital letters/spaces to make it easier for her)
+            if (userInput.trim().toLowerCase() === correctPassword.trim().toLowerCase()) {
+                // Success! Hide puzzle, show confession.
+                document.getElementById("puzzle-stage").classList.add("hidden");
+                document.getElementById("confession-stage").classList.remove("hidden");
+                
+                // Change the border to a warmer color upon success
+                document.getElementById("main-container").style.borderColor = "#ff00ff";
+                document.getElementById("main-container").style.boxShadow = "0 0 15px rgba(255, 0, 255, 0.4)";
+                document.body.style.color = "#ffb3ff"; // Soft pink text
+            } else {
+                // Fail! Show error glitch
+                errorMsg.classList.remove("hidden");
+                
+                // Shake effect for the wrong password
+                const container = document.getElementById("main-container");
+                container.style.transform = "translateX(10px)";
+                setTimeout(() => container.style.transform = "translateX(-10px)", 50);
+                setTimeout(() => container.style.transform = "translateX(10px)", 100);
+                setTimeout(() => container.style.transform = "translateX(0)", 150);
+                
+                // Hide error message after 2 seconds
+                setTimeout(() => {
+                    errorMsg.classList.add("hidden");
+                }, 2000);
+            }
+        }
+    </script>
 </body>
 </html>
